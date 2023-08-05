@@ -474,8 +474,8 @@ If no tags are provided, you will be asked to input them from command line:
 
 ```bash
 >>> python train.py tags=[]
-[2022-07-11 15:40:09,358][src.utils.utils][INFO] - Enforcing tags! <cfg.extras.enforce_tags=True>
-[2022-07-11 15:40:09,359][src.utils.rich_utils][WARNING] - No tags provided in config. Prompting user to input tags...
+[2022-07-11 15:40:09,358][lit.utils.utils][INFO] - Enforcing tags! <cfg.extras.enforce_tags=True>
+[2022-07-11 15:40:09,359][lit.utils.rich_utils][WARNING] - No tags provided in config. Prompting user to input tags...
 Enter a list of comma separated tags (dev):
 ```
 
@@ -514,10 +514,10 @@ Suggestions for improvements are always welcome!
 All PyTorch Lightning modules are dynamically instantiated from module paths specified in config. Example model config:
 
 ```yaml
-_target_: src.models.mnist_model.MNISTLitModule
+_target_: lit.models.mnist_model.MNISTLitModule
 lr: 0.001
 net:
-  _target_: src.models.components.simple_dense_net.SimpleDenseNet
+  _target_: lit.models.components.simple_dense_net.SimpleDenseNet
   input_size: 784
   lin1_size: 256
   lin2_size: 256
@@ -539,7 +539,7 @@ Switch between models and datamodules with command line arguments:
 python train.py model=mnist
 ```
 
-Example pipeline managing the instantiation logic: [src/train.py](src/train.py).
+Example pipeline managing the instantiation logic: [src/train.py](lit/train.py).
 
 <br>
 
@@ -665,12 +665,12 @@ logger:
 
 **Basic workflow**
 
-1. Write your PyTorch Lightning module (see [models/mnist_module.py](src/models/mnist_module.py) for example)
-2. Write your PyTorch Lightning datamodule (see [data/mnist_datamodule.py](src/data/mnist_datamodule.py) for example)
+1. Write your PyTorch Lightning module (see [models/mnist_module.py](lit/models/mnist_module.py) for example)
+2. Write your PyTorch Lightning datamodule (see [data/mnist_datamodule.py](lit/data/mnist_datamodule.py) for example)
 3. Write your experiment config, containing paths to model and datamodule
 4. Run training with chosen experiment config:
    ```bash
-   python src/train.py experiment=experiment_name.yaml
+   python lit/train.py experiment=experiment_name.yaml
    ```
 
 **Experiment design**
@@ -736,7 +736,7 @@ You can use many of them at once (see [configs/logger/many_loggers.yaml](configs
 
 You can also write your own logger.
 
-Lightning provides convenient method for logging custom metrics from inside LightningModule. Read the [docs](https://pytorch-lightning.readthedocs.io/en/latest/extensions/logging.html#automatic-logging) or take a look at [MNIST example](src/models/mnist_module.py).
+Lightning provides convenient method for logging custom metrics from inside LightningModule. Read the [docs](https://pytorch-lightning.readthedocs.io/en/latest/extensions/logging.html#automatic-logging) or take a look at [MNIST example](lit/models/mnist_module.py).
 
 <br>
 
@@ -857,7 +857,7 @@ python train.py trainer=ddp
 The simplest way is to pass datamodule attribute directly to model on initialization:
 
 ```python
-# ./src/train.py
+# ./lit/train.py
 datamodule = hydra.utils.instantiate(config.data)
 model = hydra.utils.instantiate(config.model, some_param=datamodule.some_param)
 ```
@@ -867,7 +867,7 @@ model = hydra.utils.instantiate(config.model, some_param=datamodule.some_param)
 Similarly, you can pass a whole datamodule config as an init parameter:
 
 ```python
-# ./src/train.py
+# ./lit/train.py
 model = hydra.utils.instantiate(config.model, dm_conf=config.data, _recursive_=False)
 ```
 
@@ -875,7 +875,7 @@ You can also pass a datamodule config parameter to your model through variable i
 
 ```yaml
 # ./configs/model/my_model.yaml
-_target_: src.models.my_module.MyLitModule
+_target_: lit.models.my_module.MyLitModule
 lr: 0.01
 some_param: ${data.some_param}
 ```
@@ -883,7 +883,7 @@ some_param: ${data.some_param}
 Another approach is to access datamodule in LightningModule directly through Trainer:
 
 ```python
-# ./src/models/mnist_module.py
+# ./lit/models/mnist_module.py
 def on_train_start(self):
   self.some_param = self.trainer.datamodule.some_param
 ```
@@ -1278,20 +1278,20 @@ Train model with default configuration
 
 ```bash
 # train on CPU
-python src/train.py trainer=cpu
+python lit/train.py trainer=cpu
 
 # train on GPU
-python src/train.py trainer=gpu
+python lit/train.py trainer=gpu
 ```
 
 Train model with chosen experiment configuration from [configs/experiment/](configs/experiment/)
 
 ```bash
-python src/train.py experiment=experiment_name.yaml
+python lit/train.py experiment=experiment_name.yaml
 ```
 
 You can override any parameter from command line like this
 
 ```bash
-python src/train.py trainer.max_epochs=20 data.batch_size=64
+python lit/train.py trainer.max_epochs=20 data.batch_size=64
 ```
